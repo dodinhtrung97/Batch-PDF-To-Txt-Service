@@ -1,5 +1,6 @@
 import os
-from cStringIO import StringIO
+from constant import Constants
+from io import StringIO
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -22,7 +23,7 @@ def pdf_to_text(pdf_name, txt_name):
     converter = TextConverter(manager, output, laparams=LAParams())
     interpreter = PDFPageInterpreter(manager, converter)
 
-    infile = file(pdf_name, 'rb')
+    infile = open(pdf_name, 'rb')
     for page in PDFPage.get_pages(infile, pagenums):
         interpreter.process_page(page)
     infile.close()
@@ -30,7 +31,11 @@ def pdf_to_text(pdf_name, txt_name):
     text = output.getvalue()
     output.close
 
-    text_file = open(txt_name, "w")
+    # create folder if folder does not yet exist
+    if not os.path.exists(f'./{Constants.UPLOAD_DIR}'):
+        os.makedirs(f'./{Constants.UPLOAD_DIR}')
+
+    text_file = open(f'./{Constants.UPLOAD_DIR}/{txt_name}', 'w')
     text = re.sub("\s\s+", " ", text)
     text_file.write("%s" % text)
     text_file.close()
