@@ -42,4 +42,4 @@ def pdf_to_text(pdf_name, txt_name):
 
     return os.path.abspath(txt_name)
 
-pdf_to_text("C://Users//Trung//Desktop//java_developer_cv_template.pdf", "Test.txt")
+pdf_to_text("C://Users//Trung//Desktop//java_developer_cv_template.pdf", "Test2.txt")
