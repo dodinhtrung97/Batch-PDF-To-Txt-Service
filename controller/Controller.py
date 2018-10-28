@@ -1,12 +1,12 @@
 from flask import Flask, request
-from converter import ConverterService
+from services import ConverterService
 from services import Request
 from services import WorkerService
 from constant import Constants
 from flask_cors import CORS
 from rq import Queue
 from rq.job import Job
-from ..worker.Worker import conn
+from worker.Worker import conn
 import time
 
 app = Flask(__name__)
