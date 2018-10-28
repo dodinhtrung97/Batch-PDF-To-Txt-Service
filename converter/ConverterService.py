@@ -29,7 +29,6 @@ def pdf_to_text(pdf_name, txt_name):
     converter.close()
     text = output.getvalue()
     output.close
-    print text 
 
     text_file = open(txt_name, "w")
     text = re.sub("\s\s+", " ", text)
@@ -37,3 +36,5 @@ def pdf_to_text(pdf_name, txt_name):
     text_file.close()
 
     return os.path.abspath(txt_name)
+
+pdf_to_text("C://Users//Trung//Desktop//java_developer_cv_template.pdf", "Test.txt")

@@ -11,7 +11,7 @@ import time
 
 app = Flask(__name__)
 CORS(app)
-q = Queue(connection=conn)
+q = Queue('conversion', connection=conn)
 
 @app.route("/convert/<bucket_name>/<pdf_name>/<txt_name>", methods=['POST'])
 def convert_pdf_to_txt(bucket_name, pdf_name, txt_name):
