@@ -24,9 +24,9 @@ def upload(host, bucket_name, txt_name):
     Request.url = f"http://{host}/"
     for n in range(3):
         try:
-            Request.createUploadTicket(bucket_name, gif_name)
-            Request.uploadFile(txt_name, gif_name, 1, r"./" + Constants.UPLOAD_DIR)
-            Request.completeUploadTicket(bucket_name, gif_name)
+            Request.createUploadTicket(bucket_name, txt_name)
+            Request.uploadFile(bucket_name, txt_name, 1, r"./" + Constants.UPLOAD_DIR)
+            Request.completeUploadTicket(bucket_name, txt_name)
             break
         except:
             if n == 2: raise
