@@ -9,6 +9,7 @@ import re
 
 def pdf_to_text(pdf_name, txt_name):
     """
+    Convert pdf to txt file in Texts/ dir
     pdf_name and txt_name should come with their file extension
     Eg: Testfile.pdf, Testfile.txt
     """
@@ -41,5 +42,3 @@ def pdf_to_text(pdf_name, txt_name):
     text_file.close()
 
     return os.path.abspath(txt_name)
-
-pdf_to_text("C://Users//Trung//Desktop//java_developer_cv_template.pdf", "Test2.txt")

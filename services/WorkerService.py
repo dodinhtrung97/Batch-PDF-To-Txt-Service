@@ -3,7 +3,7 @@ import requests
 import os
 import time
 import Request
-from ..constant import Constants
+from constant import Constants
 
 def download(host, bucket_name, object_name):
     url = f'http://{host}/{bucket_name}/{object_name}'
