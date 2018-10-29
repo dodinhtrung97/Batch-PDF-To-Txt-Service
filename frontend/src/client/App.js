@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import styles from './App.css';
 import { subscribeToTimer } from '../api';
 
 // Our single Styled Component definition
@@ -26,7 +25,7 @@ class App extends Component {
 
 	render() {
 		return (
-			<AppContainer class="${styles.AppContainer}">
+			<AppContainer>
 			    <div className="App">
 					<p className="App-intro">
 						This is the timer value: {this.state.timestamp}
