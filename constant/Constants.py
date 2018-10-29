@@ -1,3 +1,6 @@
-HOST = "localhost://8080"
+OBJECT_HOST = "localhost"
+OBJECT_PORT = "5000"
+REDIS_HOST = "redis"
+REDIS_PORT = "6379"
 DOWNLOAD_DIR = "Downloads"
-UPLOAD_DIR = "Texts"
+UPLOAD_DIR = "Uploads"

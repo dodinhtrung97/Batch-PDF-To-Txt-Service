@@ -1,4 +1,0 @@
-chardet==3.0.4
-pdfminer.six==20170720
-pycryptodome==3.7.0
-six==1.11.0
