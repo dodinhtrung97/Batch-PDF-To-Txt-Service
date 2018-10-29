@@ -1,0 +1,41 @@
+{
+  "name": "project2-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "css-loader": "^1.0.1",
+    "express": "^4.14.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "style-loader": "^0.23.1",
+    "styled-components": "^2.2.4"
+  },
+  "scripts": {
+    "start": "node ./dist/server",
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.11.1",
+    "webpack": "^3.8.1",
+    "webpack-node-externals": "^1.2.0"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
