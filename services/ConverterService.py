@@ -50,6 +50,8 @@ def pdf_to_text(host, bucket_name, object_name, pages=None):
 
     Object.upload(host, bucket_name, txt_name)
 
-    return "Success"
+    #Clean-up
+    os.remove(f'./{UPLOAD_DIR}/{pdf_name}')
+    os.remove(f'./{UPLOAD_DIR}/{txt_name}')
 
-r = pdf_to_text("localhost:5000", "pdftest", "lect01")
+    return "Success"
