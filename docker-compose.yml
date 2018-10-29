@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  redis:
+    image: redis:4-alpine
+    networks:
+    - app_default
+    ports:
+    - '6379:6379'
+    restart: always
+  controller:
+    build: ./controller
+    networks:
+    - app_default
+    depends_on:
+    - redis
+    ports:
+    - '7072:7072'
+    restart: always
+  worker:
+    build: ./services
+    networks:
+    - app_default
+    depends_on:
+    - redis
+    restart: always
+networks:
+  app_default:
+    external: true

@@ -1,0 +1,4 @@
+OBJECT_HOST = "webapp"
+OBJECT_PORT = "5000"
+REDIS_HOST = "redis"
+REDIS_PORT = "6379"

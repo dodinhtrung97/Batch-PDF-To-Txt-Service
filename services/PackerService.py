@@ -1,4 +1,4 @@
-from constant.Constants import DOWNLOAD_DIR, UPLOAD_DIR
+from Constants import DOWNLOAD_DIR, UPLOAD_DIR
 import Object
 import ast
 import Request
@@ -12,9 +12,9 @@ def get_txt_names(host, bucket_name):
     txt_names = [object["name"] for object in objects if object["name"].endswith(".txt")]
     return txt_names
 
-def pack_txt_in_bucket(host, bucket_name, archive_name):
+def pack_txt_in_bucket(host, bucket_name, object_name):
     txt_names = get_txt_names(host, bucket_name)
-    archive_converted_name = archive_name + "_converted" + ".tgz"
+    archive_converted_name = object_name + "_converted" + ".tgz"
     archive_converted_path = f"{UPLOAD_DIR}/{archive_converted_name}"
     # Download and pack the archive
     with tarfile.open(archive_converted_path, "w") as archive_converted:

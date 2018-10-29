@@ -2,7 +2,7 @@ import requests
 import os
 import time
 import Request
-from constant.Constants import DOWNLOAD_DIR, UPLOAD_DIR
+from Constants import DOWNLOAD_DIR, UPLOAD_DIR
 
 def download(host, bucket_name, object_name):
     url = f'http://{host}/{bucket_name}/{object_name}'

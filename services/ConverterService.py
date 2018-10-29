@@ -1,5 +1,5 @@
 import os
-from constant.Constants import DOWNLOAD_DIR, UPLOAD_DIR
+from Constants import DOWNLOAD_DIR, UPLOAD_DIR
 from io import StringIO
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter

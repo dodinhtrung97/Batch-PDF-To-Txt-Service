@@ -1,4 +1,4 @@
-from constant.Constants import DOWNLOAD_DIR, UPLOAD_DIR
+from Constants import DOWNLOAD_DIR, UPLOAD_DIR
 import Object
 import os
 import tarfile
@@ -19,6 +19,3 @@ def extract_tgz(host, bucket_name, object_name):
     os.remove(archive_path)
 
     return "Success"
-
-
-extract_tgz("localhost:5000", "pdftest", "t")
