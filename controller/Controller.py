@@ -5,7 +5,6 @@ import Task
 app = Flask(__name__)
 CORS(app)
 
-"""(For testing only, for production, call Task.enqueue_job directly)"""
 """Extract '{object_name}.tgz' found in {bucket_name} and upload all pdfs in the archive to that bucket"""
 @app.route("/extract", methods=['POST'])
 def handle_extraction_request():
@@ -13,7 +12,6 @@ def handle_extraction_request():
 	result = Task.enqueue_job("extract", [request.args.get("bucket_name"), request.args.get("object_name")])
 	return result
 
-"""(For testing only, for production, call Task.enqueue_job directly)"""
 """Convert the '{object_name}.pdf' found in {bucket_name} and upload it to that bucket as '{object_name}.txt' """
 @app.route("/convert", methods=['POST'])
 def handle_conversion_request():
@@ -21,7 +19,6 @@ def handle_conversion_request():
 	result = Task.enqueue_job("convert", [request.args.get("bucket_name"), request.args.get("object_name")])
 	return result
 
-"""(For testing only, for production, call Task.enqueue_job directly)"""
 """Pack all text files in {bucket_name} and upload to that bucket as '{object_name}_converted.tgz' """
 @app.route("/pack", methods=['POST'])
 def handle_packing_request():
