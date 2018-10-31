@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDropzone from 'react-dropzone';
 import { IoMdCloudUpload } from 'react-icons/io';
 import { IconContext } from 'react-icons';
+import { Line } from 'rc-progress';
 import axios from 'axios';
 import './App.css';
 
@@ -11,10 +12,9 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      bucketName: '',
+      progress: 10,
+      showDropzone: true,
       fileName: 'Drop or Select a file',
-      fileMd5: '',
-      fileSize: '',
     }
   }
 
@@ -34,6 +34,7 @@ class App extends Component {
 
         var bucketName = file.name.split(".")[0];
         this.setState({
+          showDropzone: false,
           fileName: file.name,
         })
 
@@ -50,7 +51,7 @@ class App extends Component {
         }).then( 
           (res) => console.log(res) 
         ).catch(
-          console.log("Upload Failed")
+          (error) => console.log(error)
         )
       }
 
@@ -65,12 +66,24 @@ class App extends Component {
   render() {
     return (
       <div className="app">
-        <ReactDropzone onDrop={this.onDrop} className="dropzone">
-          <IconContext.Provider value={{ size: "5em" }}>
-            <IoMdCloudUpload/>
-          </IconContext.Provider>
+        { this.state.showDropzone ? 
+          <ReactDropzone 
+            accept="application/x-gzip"
+            onDrop={this.onDrop} 
+            className="dropzone"
+          >
+            <IconContext.Provider value={{ size: "5em" }}>
+              <IoMdCloudUpload/>
+            </IconContext.Provider>
           <h1>{this.state.fileName}</h1>
         </ReactDropzone>
+        :
+        <div className="convertzone"> 
+          Converting { this.state.fileName } 
+          <Line percent={ this.state.progress } strokeWidth="2" strokeColor="#2dc663"/>
+          Progress: { this.state.progress }%
+        </div>
+      }  
       </div>
     );
   }
