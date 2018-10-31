@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDropzone from 'react-dropzone';
-import FileReader from 'filereader'
 import { IoMdCloudUpload } from 'react-icons/io';
 import { IconContext } from 'react-icons';
 import './App.css';
@@ -9,32 +8,43 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      fileName: 'Drop or Select a file'
+      fileName: 'Drop or Select a file',
+      fileMd5: '',
+      fileSize: '',
     }
   }
 
   onDrop = (files) => {
+    var fileMd5 = '';
+
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-        const fileAsBinaryString = reader.result
-        console.log(fileAsBinaryString);
+        var md5 = require('md5');
+        const fileAsBinaryString = reader.result;
+        fileMd5 = md5(fileAsBinaryString);
+
+        this.setState({
+          fileName: file.name,
+          fileMd5: fileMd5,
+          fileSize: file.size
+        })
       }
       reader.onabort = () => console.log('file reading was aborted');
       reader.onerror = () => console.log('file reading has failed');
 
-      reader.readAsDataURL(new File('./index.js'));
-
-      this.setState({
-        fileName: file.name
-      })
+      try {
+        reader.readAsDataURL(file);
+      } catch(err) {
+        console.log(err);
+      }
     });
   }
 
   render() {
     return (
       <div className="app">
-        <ReactDropzone onDrop={this.onDrop} className="dropzone">
+        <ReactDropzone onDrop={e => this.onDrop(e)} className="dropzone">
           <IconContext.Provider value={{ size: "5em" }}>
             <IoMdCloudUpload/>
           </IconContext.Provider>
