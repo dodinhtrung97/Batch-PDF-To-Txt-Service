@@ -61,4 +61,4 @@ def handle_file_upload(bucket_name, object_name, data, md5, size):
     uploadFile(bucket_name, object_name, 1, data, md5, size)
     completeUploadTicket(bucket_name, object_name)
 
-    return 'Upload Success'
+    return 'Success'
