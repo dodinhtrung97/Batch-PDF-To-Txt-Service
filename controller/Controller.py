@@ -26,5 +26,18 @@ def handle_packing_request():
 	result = Task.enqueue_job("pack", [request.args.get("bucket_name"), request.args.get("object_name")])
 	return result
 
+@app.route("/<bucketName>/<objectName>", methods=['POST'])
+def handle_tgz_upload_request(bucketName, objectName):
+	if not request.json:
+		return "Failure"
+
+	req_data = request.json
+	file_md5 = req_data['fileMd5']
+	file_size = req_data['fileSize']
+	file_data = req_data['data']
+
+	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
+
+	return result
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=7072, threaded=True)
