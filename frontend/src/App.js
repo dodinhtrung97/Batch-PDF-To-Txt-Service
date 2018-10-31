@@ -3,16 +3,18 @@ import ReactDropzone from 'react-dropzone';
 import { IoMdCloudUpload } from 'react-icons/io';
 import { IconContext } from 'react-icons';
 import { Line } from 'rc-progress';
+import io from 'socket.io-client'
 import axios from 'axios';
 import './App.css';
 
 const serverUrl = 'http://127.0.0.1:7072/';
 
 class App extends Component {
+
   constructor() {
     super();
     this.state = {
-      progress: 10,
+      progress: 0,
       showDropzone: true,
       fileName: 'Drop or Select a file',
     }
@@ -21,6 +23,41 @@ class App extends Component {
   onDrop = (files) => {
     console.log(files);
     var fileMd5 = '';
+
+    var socket = io(serverUrl, { transports: ['websocket'] });
+    socket.on('error', function(res){
+      console.log(res)
+    })
+    socket.on('status_update', function(res) {
+      console.log("Current Status: " + res.status);
+      switch(res.status) {
+        case "1":
+          this.setState({
+            progress: '25'
+          })
+          break;
+        case "2":
+          this.setState({
+            progress: '50'
+          })
+          break;
+        case "3":
+          this.setState({
+            progress: '75'
+          })
+          break;
+        case "4":
+          this.setState({
+            progress: '100'
+          })
+          break;
+        default:
+          this.setState({
+            progress: '0'
+          })
+          break;
+      }
+    })
 
     files.forEach(file => {
       const reader = new FileReader();
