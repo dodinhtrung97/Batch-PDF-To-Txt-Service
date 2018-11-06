@@ -19,7 +19,8 @@ STATUS_DICT = {}
 def handle_status_update(bucket_name, object_name, status):
 	with app.app_context():
 		# emit to all existing rooms
-		socketio.emit('status_update', status)
+		for room in IP_TO_SIDS_DICT[request.remote_addr]:
+			socketio.emit('status_update', status, room=room)
 
 	# Update status dict
 	STATUS_DICT[request.remote_addr] = (bucket_name, status)
@@ -51,7 +52,8 @@ def handle_tgz_upload_request(bucketName, objectName):
 	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
 	# send upload success message through socket
 	with app.app_context():
-		socketio.emit('status_update', '1')
+		for room in IP_TO_SIDS_DICT[request.remote_addr]:
+			socketio.emit('status_update', '1', room=room)
 
 	return result
 

@@ -27,9 +27,8 @@ class App extends Component {
     // Initialize the socket and listen to correct events
     const socket = openSocket(serverUrl)
 
-    // Let server join room
+    // Join dedicated socket room
     socket.on('join', function(room) {
-      console.log("Asking server to join room: " + room)
       socket.emit('room', room);
     });
 
