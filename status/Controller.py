@@ -13,12 +13,15 @@ CORS(app)
 
 IP_TO_SIDS_DICT = {}
 BUCKET_TO_IP_DICT = {}
-RESUME_DICT = {}
+STATUS_DICT = {}
 
 @app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
 def handle_status_update(bucket_name, object_name, status):
 	with app.app_context():
 		socketio.emit('status_update', status)
+
+	# Update status dict
+	STATUS_DICT[request.remote_addr] = (bucket_name, status)
 
 	return res.makeResponse(200, 
 							{"status": "Success",
@@ -34,11 +37,15 @@ def handle_tgz_upload_request(bucketName, objectName):
 	if not request.json:
 		return Response("{'message': 'Blank body'}", status=400, mimetype='application/json')
 
+	# Maps bucket_name to user's ip
+	BUCKET_TO_IP_DICT[bucket_name] = request.remote_addr
+	# Initializes bucket status
+	STATUS_DICT[request.remote_addr] = (bucket_name, '0')
+
 	req_data = request.json
 	file_md5 = req_data['fileMd5']
 	file_size = req_data['fileSize']
 	file_data = req_data['data']
-
 
 	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
 	# send upload success message through socket
