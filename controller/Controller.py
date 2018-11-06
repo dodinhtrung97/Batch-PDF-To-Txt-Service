@@ -1,12 +1,8 @@
-from flask import Flask, request, Response
+from flask import Flask, request
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
 import Task
-import json
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
 CORS(app)
 
 """Extract '{object_name}.tgz' found in {bucket_name} and upload all pdfs in the archive to that bucket"""
@@ -30,39 +26,5 @@ def handle_packing_request():
 	result = Task.enqueue_job("pack", [request.args.get("bucket_name"), request.args.get("object_name")])
 	return result
 
-@app.route("/<bucketName>/<objectName>", methods=['POST'])
-def handle_tgz_upload_request(bucketName, objectName):
-	"""
-	File upload route for frontend
-	Because browser doesn't allow to set Content-Length header
-	"""
-	if not request.json:
-		return Response("{'message': 'Blank body'}", status=400, mimetype='application/json')
-
-	req_data = request.json
-	file_md5 = req_data['fileMd5']
-	file_size = req_data['fileSize']
-	file_data = req_data['data']
-
-	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
-	# send upload success message through socket
-	message = {'status':'1'}
-	message_json = json.dumps(message)
-	with app.app_context():
-		emit('status_update', message_json)
-
-	return result
-
-@socketio.on('connect')
-def socket_connect():
-	message = {'connected':'1'}
-	message_json = json.dumps(message)
-	emit('connect', message_json)
-
-@socketio.on_error_default
-def default_error_handler(e):
-    print('An error occured:')
-    print(e)
-
 if __name__ == '__main__':
-	socketio.run(app, host='0.0.0.0', port=7072, threaded=True)
+	app.run(host='0.0.0.0', port=7072, threaded=True)
