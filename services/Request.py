@@ -97,3 +97,8 @@ def getAllObjectMetas(bucketName, objectName, overrideParams=None):
     requestUrl = url + "{}/{}".format(bucketName, objectName)
     r = requests.get(requestUrl, params=params)
     return r
+
+def extraction_status_update(bucket_name, object_name, status='2'):
+    requestUrl = f'http://status:7075/status/{bucket_name}/{object_name}/{status}'
+    r = requests.post(requestUrl)
+    return r

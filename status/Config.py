@@ -1,2 +1,2 @@
-OBJECT_HOST = "localhost"
+OBJECT_HOST = "status"
 OBJECT_PORT = "5000"

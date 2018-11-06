@@ -16,6 +16,7 @@ class App extends Component {
     super();
     
     this.state = {
+      action: 'Received',
       progress: 0,
       showDropzone: true,
       fileName: 'Drop or Select a file',
@@ -31,21 +32,25 @@ class App extends Component {
       switch(res) {
         case "1":
           this.setState({
+            action: 'Uploading',
             progress: '25'
           })
           break;
         case "2":
           this.setState({
+            action: 'Extracting',
             progress: '50'
           })
           break;
         case "3":
           this.setState({
+            action: 'Converting',
             progress: '75'
           })
           break;
         case "4":
           this.setState({
+            action: 'Packing',
             progress: '100'
           })
           break;
@@ -62,6 +67,11 @@ class App extends Component {
     var fileMd5 = '';
 
     files.forEach(file => {
+      this.setState({
+        showDropzone: false,
+        fileName: file.name,
+      })
+      console.log(file)
       const reader = new FileReader();
 
       reader.onabort = () => console.log('file reading was aborted');
@@ -88,10 +98,6 @@ class App extends Component {
           }
         }).then( 
           (res) => {
-            this.setState({
-              showDropzone: false,
-              fileName: file.name,
-            })
             console.log(res) 
           }
         ).catch(
@@ -118,7 +124,6 @@ class App extends Component {
       <div className="app">
         { this.state.showDropzone ? 
           <ReactDropzone 
-            accept="application/x-gzip"
             onDrop={this.onDrop} 
             className="dropzone"
           >
@@ -129,7 +134,7 @@ class App extends Component {
         </ReactDropzone>
         :
         <div className="convertzone"> 
-          Converting { this.state.fileName } 
+          {this.state.action} { this.state.fileName } 
           <Line percent={ this.state.progress } strokeWidth="2" strokeColor="#2dc663"/>
           Progress: { this.state.progress }%
         </div>

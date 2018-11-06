@@ -2,6 +2,7 @@ from Constants import DOWNLOAD_DIR, UPLOAD_DIR
 import Object
 import os
 import tarfile
+import Request as req
 
 def extract_tgz(host, bucket_name, object_name):
     archive_name = object_name + ".tgz"
@@ -17,5 +18,7 @@ def extract_tgz(host, bucket_name, object_name):
         Object.upload(host, bucket_name, pdf_name)
         os.remove(f"{archive_extract_path}/{pdf_name}")
     os.remove(archive_path)
+
+    req.extraction_status_update(bucket_name, object_name)
 
     return "Success"

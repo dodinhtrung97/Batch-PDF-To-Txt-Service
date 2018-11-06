@@ -4,11 +4,26 @@ from flask_socketio import SocketIO, emit
 import Task
 import time
 import json
+import Response as res
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 CORS(app)
+
+IP_TO_SIDS_DICT = {}
+BUCKET_TO_IP_DICT = {}
+RESUME_DICT = {}
+
+@app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
+def handle_status_update(bucket_name, object_name, status):
+	with app.app_context():
+		socketio.emit('status_update', status)
+
+	return res.makeResponse(200, 
+							{"status": "Success",
+							 "bucketName": bucket_name, 
+							 "objectName": object_name})
 
 @app.route("/<bucketName>/<objectName>", methods=['POST'])
 def handle_tgz_upload_request(bucketName, objectName):
@@ -21,7 +36,6 @@ def handle_tgz_upload_request(bucketName, objectName):
 
 	req_data = request.json
 	file_md5 = req_data['fileMd5']
-	print(file_md5)
 	file_size = req_data['fileSize']
 	file_data = req_data['data']
 
@@ -35,12 +49,33 @@ def handle_tgz_upload_request(bucketName, objectName):
 
 @socketio.on('connect')
 def socket_connect():
+	"""
+	Add request.sid to ip address's sid list
+	"""
 	print(f"Socket {request.sid}: connected")
+	print(f"From IP: {request.remote_addr}")
+
+	client_ip = request.remote_addr
+	# Update key's value
+	if client_ip in IP_TO_SIDS_DICT:
+		sid_list = IP_TO_SIDS_DICT[client_ip]
+		sid_list.append(request.sid)
+		IP_TO_SIDS_DICT[client_ip] = sid_list
+	else:
+		IP_TO_SIDS_DICT[client_ip] = [request.sid]
+
 	time.sleep(1)
-	emit('test', "A test message")
 
 @socketio.on('disconnect')
 def socket_disconnect():
+	"""
+	Remove request.sid from ip address
+	"""
+	client_ip = request.remote_addr
+	sid_list = IP_TO_SIDS_DICT[client_ip]
+	sid_list.remove(request.sid)
+	IP_TO_SIDS_DICT[client_ip] = sid_list
+
 	print(f"Socket {request.sid}: disconnected")
 
 @socketio.on_error_default
