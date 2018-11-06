@@ -9,4 +9,4 @@ WORKDIR /app
 RUN pip install --upgrade -r requirements.txt
 
 # How to run it when we start up the box?
-CMD ["python", "Controller.py"]
+CMD ["python", "-u", "Controller.py"]

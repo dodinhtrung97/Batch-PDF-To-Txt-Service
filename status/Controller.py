@@ -1,6 +1,6 @@
 from flask import Flask, request, Response
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import Task
 import time
 import json
@@ -18,6 +18,7 @@ STATUS_DICT = {}
 @app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
 def handle_status_update(bucket_name, object_name, status):
 	with app.app_context():
+		# emit to all existing rooms
 		socketio.emit('status_update', status)
 
 	# Update status dict
@@ -38,9 +39,9 @@ def handle_tgz_upload_request(bucketName, objectName):
 		return Response("{'message': 'Blank body'}", status=400, mimetype='application/json')
 
 	# Maps bucket_name to user's ip
-	BUCKET_TO_IP_DICT[bucket_name] = request.remote_addr
+	BUCKET_TO_IP_DICT[bucketName] = request.remote_addr
 	# Initializes bucket status
-	STATUS_DICT[request.remote_addr] = (bucket_name, '0')
+	STATUS_DICT[request.remote_addr] = (bucketName, '0')
 
 	req_data = request.json
 	file_md5 = req_data['fileMd5']
@@ -71,7 +72,18 @@ def socket_connect():
 	else:
 		IP_TO_SIDS_DICT[client_ip] = [request.sid]
 
+	with app.app_context():
+		socketio.emit('join', request.sid)
+
 	time.sleep(1)
+
+@socketio.on('room')
+def on_join(room):
+	"""
+	Join private socketio room
+	"""
+	join_room(room)
+	print(f"User {request.remote_addr} has joined room: {room}")
 
 @socketio.on('disconnect')
 def socket_disconnect():
@@ -83,7 +95,11 @@ def socket_disconnect():
 	sid_list.remove(request.sid)
 	IP_TO_SIDS_DICT[client_ip] = sid_list
 
+	# Leave room
+	leave_room(request.sid)
+
 	print(f"Socket {request.sid}: disconnected")
+	print(f"User {request.remote_addr} has left room: {request.sid}")
 
 @socketio.on_error_default
 def default_error_handler(e):

@@ -16,7 +16,7 @@ class App extends Component {
     super();
     
     this.state = {
-      action: 'Received',
+      action: 'Processing',
       progress: 0,
       showDropzone: true,
       fileName: 'Drop or Select a file',
@@ -27,35 +27,42 @@ class App extends Component {
     // Initialize the socket and listen to correct events
     const socket = openSocket(serverUrl)
 
+    // Let server join room
+    socket.on('join', function(room) {
+      console.log("Asking server to join room: " + room)
+      socket.emit('room', room);
+    });
+
     socket.on('status_update', (res) => {
       console.log("Current Status: " + res);
       switch(res) {
         case "1":
           this.setState({
-            action: 'Uploading',
+            action: 'Extracting',
             progress: '25'
           })
           break;
         case "2":
           this.setState({
-            action: 'Extracting',
+            action: 'Converting',
             progress: '50'
           })
           break;
         case "3":
           this.setState({
-            action: 'Converting',
+            action: 'Packing',
             progress: '75'
           })
           break;
         case "4":
           this.setState({
-            action: 'Packing',
+            action: 'Finishing up',
             progress: '100'
           })
           break;
         default:
           this.setState({
+            action: 'Uploading',
             progress: '0'
           })
           break;

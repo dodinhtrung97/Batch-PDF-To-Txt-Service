@@ -1,2 +1,2 @@
-OBJECT_HOST = "status"
+OBJECT_HOST = "webapp"
 OBJECT_PORT = "5000"
