@@ -49,13 +49,20 @@ def handle_tgz_upload_request(bucketName, objectName):
 	message = {'status':'1'}
 	message_json = json.dumps(message)
 	with app.app_context():
-		socketio.emit('status_update', message_json)
+		emit('status_update', message_json)
 
 	return result
 
 @socketio.on('connect')
 def socket_connect():
-	print("Client connected")
+	message = {'connected':'1'}
+	message_json = json.dumps(message)
+	emit('connect', message_json)
+
+@socketio.on_error_default
+def default_error_handler(e):
+    print('An error occured:')
+    print(e)
 
 if __name__ == '__main__':
 	socketio.run(app, host='0.0.0.0', port=7072, threaded=True)

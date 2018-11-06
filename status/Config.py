@@ -1,0 +1,2 @@
+OBJECT_HOST = "localhost"
+OBJECT_PORT = "5000"

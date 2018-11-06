@@ -3,16 +3,18 @@ import ReactDropzone from 'react-dropzone';
 import { IoMdCloudUpload } from 'react-icons/io';
 import { IconContext } from 'react-icons';
 import { Line } from 'rc-progress';
-import io from 'socket.io-client'
+import SparkMD5 from 'spark-md5'
+import openSocket from 'socket.io-client';
 import axios from 'axios';
 import './App.css';
 
-const serverUrl = 'http://127.0.0.1:7072/';
+const serverUrl = 'http://127.0.0.1:7075/';
 
 class App extends Component {
 
   constructor() {
     super();
+    
     this.state = {
       progress: 0,
       showDropzone: true,
@@ -20,15 +22,14 @@ class App extends Component {
     }
   }
 
-  onDrop = (files) => {
-    console.log(files);
-    var fileMd5 = '';
+  componentDidMount() {
+    // Initialize the socket and listen to correct events
+    const socket = openSocket(serverUrl)
+    socket.on("test", function(res) {
+        console.log(res)
+    });
 
-    var socket = io(serverUrl, { transports: ['websocket'] });
-    socket.on('error', function(res){
-      console.log(res)
-    })
-    socket.on('status_update', function(res) {
+    socket.on('status_update', (res) => {
       console.log("Current Status: " + res.status);
       switch(res.status) {
         case "1":
@@ -58,6 +59,11 @@ class App extends Component {
           break;
       }
     })
+  }
+
+  onDrop = (files) => {
+    console.log(files);
+    var fileMd5 = '';
 
     files.forEach(file => {
       const reader = new FileReader();
@@ -65,15 +71,17 @@ class App extends Component {
       reader.onabort = () => console.log('file reading was aborted');
       reader.onerror = () => console.log('file reading has failed');
       reader.onload = () => {
-        var md5 = require('md5');
+        var spark = new SparkMD5();
+
         const fileAsBinaryString = reader.result;
-        fileMd5 = md5(fileAsBinaryString);
+
+        spark.appendBinary(fileAsBinaryString);
+        fileMd5 = spark.end();
+
+        console.log(fileMd5)
+        console.log(fileMd5.length)
 
         var bucketName = file.name.split(".")[0];
-        this.setState({
-          showDropzone: false,
-          fileName: file.name,
-        })
 
         // Upload request to bucket
         // Create bucket with name = fileName
@@ -86,14 +94,26 @@ class App extends Component {
             data: fileAsBinaryString
           }
         }).then( 
-          (res) => console.log(res) 
+          (res) => {
+            this.setState({
+              showDropzone: false,
+              fileName: file.name,
+            })
+            console.log(res) 
+          }
         ).catch(
-          (error) => console.log(error)
+          (error) => {
+            this.setState({
+              showDropzone: true,
+              fileName: error.response.data.message,
+            })
+            console.log(error.response)
+          }
         )
       }
 
       try {
-        reader.readAsDataURL(file);
+        reader.readAsBinaryString(file);
       } catch(err) {
         console.log(err);
       }
