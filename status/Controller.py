@@ -21,19 +21,20 @@ STATUS_DICT = {}
 @app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
 def handle_status_update(bucket_name, object_name, status):
 	object_name_no_ext = object_name.rsplit('.', 1)[0]
+	bucket_owner = BUCKET_TO_IP_DICT[bucket_name]
+
+	# Update status dict
+	STATUS_DICT[request.remote_addr] = (bucket_name, status)
 
 	with app.app_context():
 		# send update status message to all existing rooms
-		for room in IP_TO_SIDS_DICT[request.remote_addr]:
+		for room in IP_TO_SIDS_DICT[bucket_owner]:
 			socketio.emit('status_update', status, room=room)
 
 	# Send post requests according to status
 	if status == '1':
 		requestUrl = f'{SERVER_URL}extract?bucket_name={bucket_name}&object_name={object_name_no_ext}'
 		requests.post(requestUrl)
-
-	# Update status dict
-	STATUS_DICT[request.remote_addr] = (bucket_name, status)
 
 	return res.makeResponse(200, 
 							{"status": "Success",
@@ -81,6 +82,8 @@ def socket_connect():
 		IP_TO_SIDS_DICT[client_ip] = sid_list
 	else:
 		IP_TO_SIDS_DICT[client_ip] = [request.sid]
+
+	print(IP_TO_SIDS_DICT)
 
 	with app.app_context():
 		socketio.emit('join', request.sid)

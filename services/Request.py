@@ -3,6 +3,7 @@ import os
 import hashlib
 
 url = ''
+STATUS_URL = 'http://status:7075'
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -100,6 +101,6 @@ def getAllObjectMetas(bucketName, objectName, overrideParams=None):
 
 def extraction_status_update(bucket_name, object_name):
     status = '2'
-    requestUrl = f'http://status:7075/status/{bucket_name}/{object_name}/{status}'
+    requestUrl = f'{STATUS_URL}/{bucket_name}/{object_name}/{status}'
     r = requests.post(requestUrl)
     return r
