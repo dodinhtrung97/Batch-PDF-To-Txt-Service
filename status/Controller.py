@@ -28,10 +28,8 @@ def handle_tgz_upload_request(bucketName, objectName):
 
 	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
 	# send upload success message through socket
-	message = {'status':'1'}
-	message_json = json.dumps(message)
 	with app.app_context():
-		socketio.emit('status_update', message_json)
+		socketio.emit('status_update', '1')
 
 	return result
 

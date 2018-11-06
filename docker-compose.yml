@@ -16,6 +16,13 @@ services:
     ports:
     - '7072:7072'
     restart: always
+  status:
+    build: ./status
+    networks:
+    - app_default
+    ports:
+    - '7075:7075'
+    restart: always
   worker:
     build: ./services
     networks:

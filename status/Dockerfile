@@ -9,4 +9,4 @@ WORKDIR /app
 RUN pip install --upgrade -r requirements.txt
 
 # How to run it when we start up the box?
-CMD ["gunicorn", "-b 0.0.0.0:7075", "-w 4", "Controller:app"]
+CMD ["gunicorn", "-b 0.0.0.0:7075", "-w 1", "Controller:app"]

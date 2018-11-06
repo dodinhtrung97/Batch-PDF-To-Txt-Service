@@ -25,13 +25,10 @@ class App extends Component {
   componentDidMount() {
     // Initialize the socket and listen to correct events
     const socket = openSocket(serverUrl)
-    socket.on("test", function(res) {
-        console.log(res)
-    });
 
     socket.on('status_update', (res) => {
-      console.log("Current Status: " + res.status);
-      switch(res.status) {
+      console.log("Current Status: " + res);
+      switch(res) {
         case "1":
           this.setState({
             progress: '25'
@@ -62,7 +59,6 @@ class App extends Component {
   }
 
   onDrop = (files) => {
-    console.log(files);
     var fileMd5 = '';
 
     files.forEach(file => {
@@ -77,9 +73,6 @@ class App extends Component {
 
         spark.appendBinary(fileAsBinaryString);
         fileMd5 = spark.end();
-
-        console.log(fileMd5)
-        console.log(fileMd5.length)
 
         var bucketName = file.name.split(".")[0];
 
