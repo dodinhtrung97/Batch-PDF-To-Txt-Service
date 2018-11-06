@@ -83,8 +83,6 @@ def socket_connect():
 	else:
 		IP_TO_SIDS_DICT[client_ip] = [request.sid]
 
-	print(IP_TO_SIDS_DICT)
-
 	with app.app_context():
 		socketio.emit('join', request.sid)
 
