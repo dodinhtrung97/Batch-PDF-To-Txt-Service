@@ -5,11 +5,14 @@ import Task
 import time
 import json
 import Response as res
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 CORS(app)
+
+SERVER_URL = 'http://controller:7072/'
 
 IP_TO_SIDS_DICT = {}
 BUCKET_TO_IP_DICT = {}
@@ -17,10 +20,17 @@ STATUS_DICT = {}
 
 @app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
 def handle_status_update(bucket_name, object_name, status):
+	object_name_no_ext = object_name.rsplit('.', 1)[0]
+
 	with app.app_context():
-		# emit to all existing rooms
+		# send update status message to all existing rooms
 		for room in IP_TO_SIDS_DICT[request.remote_addr]:
 			socketio.emit('status_update', status, room=room)
+
+	# Send post requests according to status
+	if status == '1':
+		requestUrl = f'{SERVER_URL}extract?bucket_name={bucket_name}&object_name={object_name_no_ext}'
+		requests.post(requestUrl)
 
 	# Update status dict
 	STATUS_DICT[request.remote_addr] = (bucket_name, status)
@@ -50,10 +60,8 @@ def handle_tgz_upload_request(bucketName, objectName):
 	file_data = req_data['data']
 
 	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
-	# send upload success message through socket
-	with app.app_context():
-		for room in IP_TO_SIDS_DICT[request.remote_addr]:
-			socketio.emit('status_update', '1', room=room)
+	# Update status
+	handle_status_update(bucketName, objectName, '1')
 
 	return result
 
