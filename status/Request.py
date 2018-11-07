@@ -1,13 +1,13 @@
 import requests
-from Config import OBJECT_HOST, OBJECT_PORT
+from Config import OBJECT_HOST, OBJECT_PORT, SERVER_HOST, SERVER_PORT, STATUS_HOST, STATUS_PORT
 
 OBJECT_URL = f'http://{OBJECT_HOST}:{OBJECT_PORT}'
-SERVER_URL = 'http://controller:7072/'
-STATUS_URL = 'http://status:7075'
+SERVER_URL = f'http://{SERVER_HOST}:{SERVER_PORT}'
+STATUS_URL = f'http://{STATUS_HOST}:{STATUS_PORT}'
 
 def handle_file_extract(bucket_name, object_name):
 	object_name_no_ext = object_name.rsplit('.', 1)[0]
-	requestUrl = f'{SERVER_URL}extract?bucket_name={bucket_name}&object_name={object_name_no_ext}'
+	requestUrl = f'{SERVER_URL}/extract?bucket_name={bucket_name}&object_name={object_name_no_ext}'
 	requests.post(requestUrl)
 
 def handle_file_convert(bucket_name):
@@ -25,7 +25,7 @@ def handle_file_convert(bucket_name):
 
 	for object_name in bucket_content:
 		object_name_no_ext = object_name.rsplit('.', 1)[0]
-		requestUrl = f'{SERVER_URL}convert?bucket_name={bucket_name}&object_name={object_name_no_ext}'
+		requestUrl = f'{SERVER_URL}/convert?bucket_name={bucket_name}&object_name={object_name_no_ext}'
 		requests.post(requestUrl)
 
 	return bucket_content
@@ -33,7 +33,7 @@ def handle_file_convert(bucket_name):
 def handle_file_pack(bucket_name):
 	# object_name = bucket_name
 	# So that resulting tgz will have bucket_name as prefix
-	requestUrl = f'{SERVER_URL}pack?bucket_name={bucket_name}&object_name={bucket_name}'
+	requestUrl = f'{SERVER_URL}/pack?bucket_name={bucket_name}&object_name={bucket_name}'
 	requests.post(requestUrl)
 
 	return bucket_name
