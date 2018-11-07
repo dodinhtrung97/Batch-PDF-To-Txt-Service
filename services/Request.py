@@ -105,3 +105,8 @@ def worker_status_update(bucket_name, object_name, status):
     status_update = f'{STATUS_URL}/status/{bucket_name}/{status}'
     r = requests.post(status_update)
     return r
+
+def on_file_converted(bucket_name):
+    requestUrl = f'{STATUS_URL}/filesconverted/{bucket_name}'
+    r = requests.post(requestUrl)
+    return r

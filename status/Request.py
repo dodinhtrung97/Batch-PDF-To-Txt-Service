@@ -36,3 +36,18 @@ def handle_file_pack(bucket_name):
 	requests.post(requestUrl)
 
 	return bucket_name
+
+def get_total_pdf(bucket_name):
+	bucket_content = []
+
+	r = requests.get(f'{OBJECT_URL}/{bucket_name}?list')
+	response_json = r.json()
+	object_list = response_json['objects']
+
+	for object in object_list:
+		file_extension = object['name'].rsplit('.', 1)[1]
+		# Only convert pdfs
+		if file_extension == 'pdf':
+			bucket_content.append(object['name'])
+
+	return len(bucket_content)

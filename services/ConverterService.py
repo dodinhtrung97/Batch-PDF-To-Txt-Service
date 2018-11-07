@@ -5,6 +5,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
+import Request as req
 import Object
 
 def pdf_to_text(host, bucket_name, object_name):
@@ -46,4 +47,6 @@ def pdf_to_text(host, bucket_name, object_name):
     os.remove(pdf_path)
     os.remove(txt_path)
 
+    req.on_file_converted(bucket_name)
+    
     return "Success"

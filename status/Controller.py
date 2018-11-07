@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from Config import OBJECT_PORT
 import Task
 import time
 import json
@@ -13,11 +14,25 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 CORS(app)
 
-SERVER_URL = 'http://controller:7072/'
-
 IP_TO_SIDS_DICT = {}
 BUCKET_TO_IP_DICT = {}
 STATUS_DICT = {}
+
+@app.route("/filesconverted/<bucket_name>", methods=['POST'])
+def on_file_converted(bucket_name):
+	print("Something's converted!!!")
+	bucket_owner = BUCKET_TO_IP_DICT[bucket_name]
+	value = STATUS_DICT[bucket_owner]
+	# Update map
+	value = (value[0], value[1], value[2]+1)
+	STATUS_DICT[bucket_owner] = value
+
+	target_converted = req.get_total_pdf(bucket_name)
+	if STATUS_DICT[bucket_owner][2] == target_converted:
+		handle_status_update(bucket_name, '3')
+		handle_route_on_status_update(bucket_name, 'none', '3')
+
+	return "Success"
 
 @app.route("/status/<bucket_name>/<status>", methods=['POST'])
 def handle_status_update(bucket_name, status):
@@ -26,12 +41,14 @@ def handle_status_update(bucket_name, status):
 
 	# Update status dict
 	if current_status < status:
-		STATUS_DICT[bucket_owner] = (bucket_name, status)
+		STATUS_DICT[bucket_owner] = (bucket_name, status, STATUS_DICT[bucket_owner][2])
 
 		with app.app_context():
 			# send update status message to all existing rooms
 			for room in IP_TO_SIDS_DICT[bucket_owner]:
-				socketio.emit('status_update', status, room=room)
+				response = {'status': status,
+							'downloadLink': f'http://localhost:{OBJECT_PORT}/{bucket_name}/{bucket_name}_converted.tgz'}
+				socketio.emit('status_update', response, room=room)
 
 	return res.makeResponse(200, 
 							{"status": "Success",
@@ -39,21 +56,22 @@ def handle_status_update(bucket_name, status):
 
 @app.route("/route/<bucket_name>/<object_name>/<status>", methods=['POST'])
 def handle_route_on_status_update(bucket_name, object_name, status):
+	bucket_owner = BUCKET_TO_IP_DICT[bucket_name]
+
 	# Send post requests according to status
 	if status == '1':
 		req.handle_file_extract(bucket_name, object_name)
 	if status == '2':
 		# Convert files
 		bucket_content = req.handle_file_convert(bucket_name)
-		handle_status_update(bucket_name, '3')
+	if status == '3':
 		# Pack files
 		req.handle_file_pack(bucket_name)
 		handle_status_update(bucket_name, '4')
 
 	return res.makeResponse(200, 
 							{"status": "Success",
-							 "bucketName": bucket_name, 
-							 "objectName": object_name})
+							 "bucketName": bucket_name})
 
 @app.route("/<bucketName>/<objectName>", methods=['POST'])
 def handle_tgz_upload_request(bucketName, objectName):
@@ -67,7 +85,7 @@ def handle_tgz_upload_request(bucketName, objectName):
 	# Maps bucket_name to user's ip
 	BUCKET_TO_IP_DICT[bucketName] = request.remote_addr
 	# Initializes bucket status
-	STATUS_DICT[request.remote_addr] = (bucketName, '0')
+	STATUS_DICT[request.remote_addr] = (bucketName, '0', 0)
 
 	req_data = request.json
 	file_md5 = req_data['fileMd5']
