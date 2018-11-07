@@ -99,8 +99,9 @@ def getAllObjectMetas(bucketName, objectName, overrideParams=None):
     r = requests.get(requestUrl, params=params)
     return r
 
-def extraction_status_update(bucket_name, object_name):
-    status = '2'
-    requestUrl = f'{STATUS_URL}/{bucket_name}/{object_name}/{status}'
-    r = requests.post(requestUrl)
+def worker_status_update(bucket_name, object_name, status):
+    status_update_route = f'{STATUS_URL}/route/{bucket_name}/{object_name}/{status}'
+    requests.post(status_update_route)
+    status_update = f'{STATUS_URL}/status/{bucket_name}/{status}'
+    r = requests.post(status_update)
     return r

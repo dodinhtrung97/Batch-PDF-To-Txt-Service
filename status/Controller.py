@@ -6,6 +6,7 @@ import time
 import json
 import Response as res
 import requests
+import Request as req
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -18,23 +19,36 @@ IP_TO_SIDS_DICT = {}
 BUCKET_TO_IP_DICT = {}
 STATUS_DICT = {}
 
-@app.route("/<bucket_name>/<object_name>/<status>", methods=['POST'])
-def handle_status_update(bucket_name, object_name, status):
-	object_name_no_ext = object_name.rsplit('.', 1)[0]
+@app.route("/status/<bucket_name>/<status>", methods=['POST'])
+def handle_status_update(bucket_name, status):
 	bucket_owner = BUCKET_TO_IP_DICT[bucket_name]
+	current_status = STATUS_DICT[bucket_owner][1]
 
 	# Update status dict
-	STATUS_DICT[request.remote_addr] = (bucket_name, status)
+	if current_status < status:
+		STATUS_DICT[bucket_owner] = (bucket_name, status)
 
-	with app.app_context():
-		# send update status message to all existing rooms
-		for room in IP_TO_SIDS_DICT[bucket_owner]:
-			socketio.emit('status_update', status, room=room)
+		with app.app_context():
+			# send update status message to all existing rooms
+			for room in IP_TO_SIDS_DICT[bucket_owner]:
+				socketio.emit('status_update', status, room=room)
 
+	return res.makeResponse(200, 
+							{"status": "Success",
+							 "bucketName": bucket_name})
+
+@app.route("/route/<bucket_name>/<object_name>/<status>", methods=['POST'])
+def handle_route_on_status_update(bucket_name, object_name, status):
 	# Send post requests according to status
 	if status == '1':
-		requestUrl = f'{SERVER_URL}extract?bucket_name={bucket_name}&object_name={object_name_no_ext}'
-		requests.post(requestUrl)
+		req.handle_file_extract(bucket_name, object_name)
+	if status == '2':
+		# Convert files
+		bucket_content = req.handle_file_convert(bucket_name)
+		handle_status_update(bucket_name, '3')
+		# Pack files
+		req.handle_file_pack(bucket_name)
+		handle_status_update(bucket_name, '4')
 
 	return res.makeResponse(200, 
 							{"status": "Success",
@@ -62,7 +76,8 @@ def handle_tgz_upload_request(bucketName, objectName):
 
 	result = Task.handle_file_upload(bucketName, objectName, file_data, file_md5, file_size)
 	# Update status
-	handle_status_update(bucketName, objectName, '1')
+	handle_route_on_status_update(bucketName, objectName, '1')
+	handle_status_update(bucketName, '1')
 
 	return result
 

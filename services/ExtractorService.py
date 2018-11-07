@@ -19,6 +19,6 @@ def extract_tgz(host, bucket_name, object_name):
         os.remove(f"{archive_extract_path}/{pdf_name}")
     os.remove(archive_path)
 
-    req.extraction_status_update(bucket_name, object_name)
+    req.worker_status_update(bucket_name, object_name, '2')
 
     return "Success"
