@@ -1,9 +1,8 @@
 import requests
-from Config import OBJECT_HOST, OBJECT_PORT, SERVER_HOST, SERVER_PORT, STATUS_HOST, STATUS_PORT
+from Config import OBJECT_HOST, OBJECT_PORT, SERVER_HOST, SERVER_PORT
 
 OBJECT_URL = f'http://{OBJECT_HOST}:{OBJECT_PORT}'
 SERVER_URL = f'http://{SERVER_HOST}:{SERVER_PORT}'
-STATUS_URL = f'http://{STATUS_HOST}:{STATUS_PORT}'
 
 def handle_file_extract(bucket_name, object_name):
 	object_name_no_ext = object_name.rsplit('.', 1)[0]
