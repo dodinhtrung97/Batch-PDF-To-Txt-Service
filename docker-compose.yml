@@ -30,6 +30,15 @@ services:
     depends_on:
     - redis
     restart: always
+  frontend:
+    build: ./frontend
+    networks:
+    - app_default
+    depends_on:
+    - status
+    ports:
+      - '80:80'
+    restart: always
 networks:
   app_default:
     external: true
